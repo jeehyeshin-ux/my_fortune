@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { useRef, useState } from "react";
+import { ChevronLeft, Download } from "lucide-react";
+import { toBlob } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,34 @@ export function FortuneApp() {
   const [topic, setTopic] = useState<Topic | null>(null);
   const [error, setError] = useState("");
   const [fortune, setFortune] = useState("");
+  const [saving, setSaving] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  async function saveImage() {
+    if (!cardRef.current || saving) return;
+    setSaving(true);
+    try {
+      const blob = await toBlob(cardRef.current, { pixelRatio: 2, backgroundColor: "#ffffff" });
+      if (!blob) throw new Error("empty image");
+      const file = new File([blob], `my-fortune-${FORTUNE_YEAR}.png`, { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (e) {
+      if (!(e instanceof DOMException && e.name === "AbortError")) {
+        setError("이미지를 저장하지 못했어요. 다시 시도해 주세요.");
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function reset() {
     setStep("landing");
@@ -200,21 +229,37 @@ export function FortuneApp() {
 
         {step === "result" && (
           <>
-            <p className="text-lg font-semibold text-primary">{topic}</p>
-            <h1 className="mt-2 text-[28px] leading-snug font-bold break-keep">
-              {name}님의 {FORTUNE_YEAR}년
-            </h1>
-            <div className="mt-8 flex flex-col gap-3">
-              {fortune.split(/\n\s*\n/).map((para, i) => (
-                <Card
-                  key={i}
-                  className={cn(FADE_IN)}
-                  style={{ animationDelay: `${i * 150}ms` }}
-                >
-                  <p className="px-6 leading-relaxed break-keep">{para}</p>
-                </Card>
-              ))}
+            <div ref={cardRef} className="bg-white pb-2">
+              <p className="text-lg font-semibold text-primary">{topic}</p>
+              <h1 className="mt-2 text-[28px] leading-snug font-bold break-keep">
+                {name}님의 {FORTUNE_YEAR}년
+              </h1>
+              <div className="mt-8 flex flex-col gap-3">
+                {fortune.split(/\n\s*\n/).map((para, i) => (
+                  <Card
+                    key={i}
+                    className={cn(FADE_IN)}
+                    style={{ animationDelay: `${i * 150}ms` }}
+                  >
+                    <p className="px-6 leading-relaxed break-keep">{para}</p>
+                  </Card>
+                ))}
+              </div>
             </div>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="mt-6 w-full"
+              disabled={saving}
+              onClick={() => {
+                setError("");
+                saveImage();
+              }}
+            >
+              <Download aria-hidden />
+              {saving ? "만드는 중이에요" : "이미지로 저장"}
+            </Button>
+            <ErrorText>{error}</ErrorText>
             <p className="mt-6 text-sm text-muted-foreground">
               재미로 보는 운세예요. 중요한 결정은 신중하게 내려 주세요.
             </p>

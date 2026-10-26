@@ -1,17 +1,7 @@
 import { z } from "zod";
 
-export const FORTUNE_YEAR = 2027;
-
-export const TOPICS = [
-  "커리어/진로",
-  "재물/금전운",
-  "연애/인간관계",
-  "건강",
-  "학업/성장",
-  "종합운세",
-] as const;
-
-export type Topic = (typeof TOPICS)[number];
+export const FORTUNE_YEARS = [2026, 2027] as const;
+export type FortuneYear = (typeof FORTUNE_YEARS)[number];
 
 export function isValidBirthDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -34,12 +24,19 @@ export const birthDateSchema = z
   .string()
   .refine(isValidBirthDate, "YYYY-MM-DD 형식의 올바른 생년월일을 입력해 주세요");
 
-export const topicSchema = z.enum(TOPICS, { error: "주제를 선택해 주세요" });
+// 태어난 시진 번호(0=자시 ~ 11=해시). null은 "시간 모름".
+export const hourSchema = z.number().int().min(0).max(11).nullable();
 
-export const fortuneRequestSchema = z.object({
-  name: nameSchema,
+export const yearSchema = z.union([z.literal(2026), z.literal(2027)], { error: "연도를 선택해 주세요" });
+
+export const sajuRequestSchema = z.object({
   birthDate: birthDateSchema,
-  topic: topicSchema,
+  hour: hourSchema,
+});
+
+export const fortuneRequestSchema = sajuRequestSchema.extend({
+  name: nameSchema,
+  year: yearSchema,
 });
 
 export type FortuneRequest = z.infer<typeof fortuneRequestSchema>;

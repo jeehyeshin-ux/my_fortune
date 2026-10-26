@@ -18,11 +18,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "2027 신년운세",
-  description: "이름과 생년월일만 알려주세요. AI가 2027년 운세를 알려드려요.",
+  title: "2026·2027 신년운세",
+  description: "이름과 생년월일만 알려주세요. 사주로 2026·2027년 운세를 알려드려요.",
   openGraph: {
-    title: "2027 신년운세",
-    description: "이름과 생년월일만 알려주세요. AI가 2027년 운세를 알려드려요.",
+    title: "2026·2027 신년운세",
+    description: "이름과 생년월일만 알려주세요. 사주로 2026·2027년 운세를 알려드려요.",
     images: [{ url: "/cover.png", width: 736, height: 920 }],
   },
 };

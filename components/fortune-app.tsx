@@ -39,6 +39,8 @@ const BACK: Partial<Record<Step, Step>> = {
   result: "saju",
 };
 
+const READING_LABELS = ["올해의 한 줄", "흐름 해석", "조심할 점", "올해의 행동 1개", "한 줄 응원"] as const;
+
 const FADE_IN =
   "animate-in fade-in slide-in-from-bottom-3 duration-500 fill-mode-both motion-reduce:animate-none";
 
@@ -313,7 +315,12 @@ export function FortuneApp() {
               {elementPart.length > 0 && (
                 <FortuneSection title="오행 분석" paragraphs={elementPart} />
               )}
-              <FortuneSection title="사주풀이" paragraphs={readingPart} offset={elementPart.length} />
+              <FortuneSection
+                title="사주풀이"
+                paragraphs={readingPart}
+                labels={readingPart.length === READING_LABELS.length ? READING_LABELS : undefined}
+                offset={elementPart.length}
+              />
             </div>
             <Button
               variant="secondary"
@@ -369,10 +376,12 @@ function ErrorText({ children }: { children: React.ReactNode }) {
 function FortuneSection({
   title,
   paragraphs,
+  labels,
   offset = 0,
 }: {
   title: string;
   paragraphs: string[];
+  labels?: readonly string[];
   offset?: number;
 }) {
   return (
@@ -385,6 +394,7 @@ function FortuneSection({
             className={cn(FADE_IN)}
             style={{ animationDelay: `${(offset + i) * 150}ms` }}
           >
+            {labels && <p className="px-6 text-sm font-semibold text-primary">{labels[i]}</p>}
             <p className="px-6 leading-relaxed break-keep">{para}</p>
           </Card>
         ))}

@@ -6,6 +6,7 @@ import { ChevronLeft, Download } from "lucide-react";
 import { toBlob } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Input } from "@/components/ui/input";
 import {
   FORTUNE_YEAR,
@@ -41,7 +42,7 @@ export function FortuneApp() {
     if (!cardRef.current || saving) return;
     setSaving(true);
     try {
-      const blob = await toBlob(cardRef.current, { pixelRatio: 2, backgroundColor: "#ffffff" });
+      const blob = await toBlob(cardRef.current, { pixelRatio: 2, backgroundColor: getComputedStyle(document.body).backgroundColor });
       if (!blob) throw new Error("empty image");
       const file = new File([blob], `my-fortune-${FORTUNE_YEAR}.png`, { type: "image/png" });
       if (navigator.canShare?.({ files: [file] })) {
@@ -114,8 +115,8 @@ export function FortuneApp() {
     (step === "topic" && topic !== null);
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[600px] flex-col bg-white px-6">
-      <header className="flex h-14 items-center">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[600px] flex-col bg-background px-6">
+      <header className="flex h-14 items-center justify-between">
         {back && (
           <button
             type="button"
@@ -129,6 +130,7 @@ export function FortuneApp() {
             <ChevronLeft className="size-6" />
           </button>
         )}
+        <ThemeToggle />
       </header>
 
       <section key={step} className={cn("flex flex-1 flex-col pt-6", FADE_IN)}>
@@ -229,7 +231,7 @@ export function FortuneApp() {
 
         {step === "result" && (
           <>
-            <div ref={cardRef} className="bg-white pb-2">
+            <div ref={cardRef} className="bg-background pb-2">
               <p className="text-lg font-semibold text-primary">{topic}</p>
               <h1 className="mt-2 text-[28px] leading-snug font-bold break-keep">
                 {name}님의 {FORTUNE_YEAR}년
@@ -268,7 +270,7 @@ export function FortuneApp() {
       </section>
 
       {step !== "loading" && (
-        <div className="sticky bottom-0 -mx-6 bg-white px-6 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <div className="sticky bottom-0 -mx-6 bg-background px-6 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {step === "result" ? (
             <Button size="lg" className="w-full" onClick={reset}>
               다시 보기

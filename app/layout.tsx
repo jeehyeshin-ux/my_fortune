@@ -27,12 +27,19 @@ export const metadata: Metadata = {
   },
 };
 
+// 첫 페인트 전에 저장된 값(없으면 시스템 설정)으로 dark 클래스를 정해 깜빡임을 막는다.
+const THEME_SCRIPT = `try{var t=localStorage.getItem("theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.classList.add("dark")}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
+      suppressHydrationWarning
       className={`${pretendard.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
         <Toaster />
